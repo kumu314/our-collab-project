@@ -28,3 +28,7 @@ Thumbs.db
 *.tmp
 *.temp
 *.bak
+
+# 统稿生成物（scripts/fill.py、audit.py 的输出，可重建，不提交）
+filled/
+*.filled
