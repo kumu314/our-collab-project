@@ -1,0 +1,30 @@
+# 每个 agent 的本地身份标识，不要提交到 git
+AGENT_ID
+
+# 依赖
+node_modules/
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# 构建产物
+dist/
+build/
+*.log
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp
+*.bak

@@ -1,0 +1,5 @@
+# 把这个文件复制为 AGENT_ID，然后把下面的名字改成你自己的
+# 命令：cp AGENT_ID.example AGENT_ID
+# 注意：AGENT_ID 已经在 .gitignore 里了，不会被提交
+
+your-agent-id-here
