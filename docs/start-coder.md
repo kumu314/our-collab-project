@@ -23,7 +23,8 @@ git checkout main
 git pull origin main
 ```
 
-打开 `00_CONTRACT/ROLES.md`，在 `coder` 那一行填上你的姓名 + GitHub 账号，保存。
+> **认领写在哪（重要）**：在 `STATUS.md` 的「角色」表里把 `coder` 那行的「认领人」填上（例如 `Blair`），并把「待认领」里属于你的任务行**整行搬**到「进行中 → coder」分区（行首加 `[coder]`）。
+> **不要改 `00_CONTRACT/ROLES.md`** —— 那是建模手（modeler）专属文件，契约闸（premerge_check）会拦下任何非 modeler 的修改，照做你的 PR 会直接红叉。建模手会统一在 ROLES.md 登记全员。
 
 ---
 
