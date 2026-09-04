@@ -40,6 +40,10 @@ def fmt(v):
     if isinstance(v, int):
         return str(v)
     if isinstance(v, float):
+        # 近零临界值（如垂尾余量 3.99e-5 m）：用科学计数法保留有效位，
+        # 避免被 2 位小数四舍五入成 0 而丢失「紧约束」信息（SPEC 规则#2）。
+        if v != 0.0 and abs(v) < 0.01:
+            return f"{v:.2e}"
         if abs(v - round(v)) < 1e-9:
             return str(int(round(v)))
         s = f"{v:.2f}"
