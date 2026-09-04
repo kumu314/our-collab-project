@@ -7,10 +7,10 @@
 ## 🚀 进行中
 
 - [captain] 数模契约并入仓库 — 100% — 2026-09-03 — FACTS/SPEC/模板/脚本/自动加载 skill 已就位，待合并到 main
+- [ningxiachufang] P1 主模型求解与结果 — 0% — 2026-09-04 — 已认领，输出 results.json + 图；开工前先读 FACTS.md 和 SPEC
 
 ## 📋 待认领
 
-- P1 主模型求解与结果（coder，预估 6h）— 输出 results.json + 图
 - P2 政策场景建模（coder，预估 5h）— 输出 results.json 增量
 - P3 灵敏度分析（coder，预估 4h）— 输出 sensitivity 字段
 - 章节 1–4 建模过程写作（writer，预估 6h）— sec1~sec4
