@@ -10,6 +10,15 @@ description: 本仓库的数模协作契约。任何 agent 在本仓库工作前
 
 ---
 
+## 零、先认领角色（v2 新增，第一步就做）
+
+1. 打开 `00_CONTRACT/ROLES.md`，在 `writer` 或 `captain` 那一行填上你的姓名 + GitHub 账号，提 PR 合入。
+2. 你的**分支名、产出目录、看板分区**全部由角色 id 决定：分支名 `agent/<角色id>/<任务>`。
+3. 角色 id 只有三个：`coder` / `writer` / `captain`。**不许用昵称**（blair、ningxia 等请换成对应角色）。
+4. 别跳过这步——角色没认领，PR 校验闸会把你拦下来。
+
+---
+
 ## 一、开工前必读（按顺序，30 秒）
 
 | # | 文件 | 读它为了什么 |
@@ -26,13 +35,14 @@ description: 本仓库的数模协作契约。任何 agent 在本仓库工作前
 
 ## 二、分支隔离 + 只读/只写区（Git 仓库版）
 
-本仓库用 **Git 分支隔离**（不是同步盘）：每人从 main 拉自己的分支 `agent/<id>/<任务>`，只在自己分支上改，做完提 PR 由整合人合并。这样从物理上杜绝写冲突。
+本仓库用 **Git 分支隔离**（不是同步盘）：每人从 main 拉自己的分支 `agent/<角色id>/<任务>`（角色见 `00_CONTRACT/ROLES.md`），只在自己分支上改，做完提 PR 由整合人合并。这样从物理上杜绝写冲突。
 
 | 区域 | 你能做什么 | 说明 |
 |------|-----------|------|
 | `00_CONTRACT/` | **只读** | 只有队长（captain）能改，且通过 PR 合入 main。发现问题 → 在 STATUS.md 的「风险/阻塞」登记，让队长改 |
 | `01_OUTBOX/coder/` | coder 在自己的**分支**上写 | results.json + 图 + 表 CSV |
 | `01_OUTBOX/writer/` | writer 在自己的**分支**上写 | sec*.md 章节稿 |
+| `01_OUTBOX/captain/` | captain 在自己的**分支**上写 | 统稿记录、整合说明 |
 | `STATUS.md` | 通过 PR 更新自己的任务行 | 不要直接改别人的任务；看板靠 PR 流转 |
 | `scripts/` | **只读**（除 captain） | 统稿脚本，只有队长维护 |
 | `.workbuddy/skills/` | **只读** | 本契约自身 |
@@ -98,6 +108,8 @@ coder 必须按 SPEC.md 的 schema 输出 results.json，字段名不许改。
 - ❌ 手抄/估算数字
 - ❌ 自己发明文件名
 - ❌ 没做完声称完成
+- ❌ 用昵称当角色（分支/目录/看板一律用 coder/writer/captain）
+- ⚠️ 提 PR 会自动跑 `scripts/premerge_check.py` 校验，不合规**标红、禁止合并**（详见 §十）
 
 ---
 
@@ -118,3 +130,22 @@ coder 必须按 SPEC.md 的 schema 输出 results.json，字段名不许改。
 | **captain**（队长） | 契约、假设、符号、统稿、合 PR | `00_CONTRACT/` + `scripts/` | 不写代码、不写初稿正文 |
 | **coder**（代码手） | 求解、敏感性、**所有图/表数据**、`results.json` | `01_OUTBOX/coder/` | 不写论文段落 |
 | **writer**（论文手） | 按模板填章节、图表题注、参考文献 | `01_OUTBOX/writer/` | 不算数、不产图 |
+
+> 认领人见 `00_CONTRACT/ROLES.md`。角色没认领前，先别开工。
+
+---
+
+## 十、PR 自动校验闸（v2 新增，硬约束）
+
+每个 PR 都会被 `scripts/premerge_check.py`（挂 GitHub Actions）自动检查，**不合规就标红，整合人不会合并**：
+
+| 校验项 | 违规后果 |
+|--------|---------|
+| 角色合法（coder/writer/captain） | 分支名不对 → 红 |
+| 只碰授权目录（00_CONTRACT/scripts/.workbuddy/.github 只有 captain 能动） | 越界 → 红 |
+| 不碰别人的 `01_OUTBOX/` | 越界 → 红 |
+| `docs/work-<角色>.md` 非空 | 交空文件 → 红 |
+| STATUS.md 只动自己的行和「待认领」池 | 动别人条目 → 红 |
+| coder 的 results.json 过 schema | 字段不合规 → 红 |
+
+**这条是「自动加载 skill」兜底的硬闸**：光看契约不遵守没用，闸会把违规 PR 拦在合并前。
