@@ -10,13 +10,17 @@ description: 本仓库的数模协作契约。任何 agent 在本仓库工作前
 
 ---
 
-## 零、先认领角色（v2 新增，第一步就做）
+## 零、先认领角色 + 拿开工指令（第一步就做）
 
 1. 打开 `00_CONTRACT/ROLES.md`，在 `coder` 或 `writer` 那一行填上你的姓名 + GitHub 账号，提 PR 合入。
    （`modeler` 已由建模手 kumu314 认领——仓库管理员，兼契约守护者。）
-2. 你的**分支名、产出目录、看板分区**全部由角色 id 决定：分支名 `agent/<角色id>/<任务>`。
-3. 角色 id 只有三个：`modeler` / `coder` / `writer`。**不许用昵称**（blair、ningxia 等请换成对应角色）。
-4. 别跳过这步——角色没认领，PR 校验闸会把你拦下来。
+2. **按你的角色打开开工指令，照着做：**
+   - 你是 **coder**（代码手）→ 读 `docs/start-coder.md`
+   - 你是 **writer**（论文手）→ 读 `docs/start-writer.md`
+   - 你是 **modeler**（建模手）→ 读 `docs/start-modeler.md`
+3. 你的**分支名、产出目录、看板分区**全部由角色 id 决定：分支名 `agent/<角色id>/<任务>`。
+4. 角色 id 只有三个：`modeler` / `coder` / `writer`。**不许用昵称**（blair、ningxia 等请换成对应角色）。
+5. 别跳过这步——角色没认领，PR 校验闸会把你拦下来。
 
 ---
 
