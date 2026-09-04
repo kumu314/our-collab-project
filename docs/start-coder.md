@@ -30,7 +30,7 @@ git pull origin main
 ## 第 1 步：本次任务 —— 出首版 `results.json`
 
 **任务名（认领时照抄）**：
-`【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json（P1 有数 / P2 P3 可 null）`
+`【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json（P1 有数 / P2 可 null）`
 
 ### 1.1 认领任务
 
@@ -61,7 +61,7 @@ git checkout -b agent/coder/first-results main
 
 ```
 git add .
-git commit -m "feat: coder 首版 results.json（P1 有数 / P2 P3 null）"
+git commit -m "feat: coder 首版 results.json（P1 有数 / P2 null）"
 git push -u origin agent/coder/first-results
 ```
 
@@ -79,8 +79,8 @@ git push -u origin agent/coder/first-results
 
 | 你等谁 | 等什么 | 状态 |
 |--------|--------|------|
-| modeler | FACTS.md 客户总数 / 绿色区客户数 / 时间窗类型 / 是否拆分配送 / 成本口径 | ⬜ 未定（建模手在填） |
-| modeler | 假设清单 H1–H5（你要逐条跟代码核对） | ⬜ 未定 |
+| modeler | FACTS.md 弹射题版 v2：输入参数 m=170kg / v_e=16 / β=15° / v0=250 / h0_base=8000 / 开伞判据 v_open=97、v_t=6、h_margin=100 / 几何 L_plane=15、x_exh=9 + 敏感性区间 | ✅ 已锁定（2026-09-04） |
+| modeler | 假设清单 H1–H9（你要逐条跟代码核对） | ✅ 已定 |
 
 **口径没定之前**，先搭骨架、跑通数据读取和求解流程，别急着定最终参数。
 骨架通了以后口径一变，改参数即可。

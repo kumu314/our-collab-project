@@ -20,7 +20,7 @@ import json
 import os
 import sys
 
-# ===== 期望 schema（来自 00_CONTRACT/SPEC.md 第二节，逐字段对照）=====
+# ===== 期望 schema（来自 00_CONTRACT/SPEC.md 第二节，逐字段对照；2026-09-04 弹射题版）=====
 EXPECTED = {
     "meta": {
         "generated_at": str,
@@ -29,40 +29,26 @@ EXPECTED = {
         "reproducible": bool,
     },
     "P1": {
-        "total_cost": (int, float),
-        "cost_breakdown": {
-            "startup": (int, float),
-            "energy": (int, float),
-            "time_window_penalty": (int, float),
-            "carbon": (int, float),
-        },
-        "vehicle_count": (int, float),
-        "vehicle_used": {
-            "type1": (int, float), "type2": (int, float), "type3": (int, float),
-            "type4": (int, float), "type5": (int, float),
-        },
-        "nev_count": (int, float),
-        "carbon_kg": (int, float),
+        "T_min": (int, float),          # N 最小推力
+        "h_min": (int, float),          # m 最低飞行高度
+        "a_max_g": (int, float),        # g 推力段最大过载
+        "y_max_abs": (int, float),      # m 轨迹最高绝对海拔
+        "sep_x_min": (int, float),      # m 与机尾最小水平间距（≥0 安全）
+        "h_open_margin": (int, float),  # m 开伞点高度裕量（≥100）
+        "burn_ok": bool,                # 是否全程避开尾喷流锥
     },
     "P2": {
-        "total_cost": (int, float),
-        "delta_vs_P1": (int, float),
-        "delta_percent": (int, float),
-        "nev_count": (int, float),
-        "carbon_kg": (int, float),
-    },
-    "P3": {
-        "baseline": (int, float),
-        "scenarios": {
-            "cancel": (int, float),
-            "add": (int, float),
-            "tighten": (int, float),
-        },
+        "theta_sweep": list,            # ° 扫描倾角列表
+        "T_opt": list,                  # N 各 θ 最优推力（不可行为 null）
+        "h_min": list,                  # m 各 θ 最低飞行高度
+        "safe": list,                   # bool 各 θ 是否可行
+        "theta_best": (int, float),     # ° 最优倾角
     },
     "sensitivity": {
-        "alpha": {"x": list, "y": list},
+        "v0":   {"x": list, "y": list},
+        "h0":   {"x": list, "y": list},
         "beta": {"x": list, "y": list},
-        "radius": {"x": list, "y": list},
+        "m":    {"x": list, "y": list},
     },
     "figures": list,
 }
@@ -117,7 +103,7 @@ def _validate(node, expected, path, errors, warnings):
 
     if isinstance(node, int) and not isinstance(node, bool):
         low = path.lower()
-        if any(tag in low for tag in ("cost", "percent", "carbon")) and node > 100:
+        if any(tag in low for tag in ("percent",)) and node > 100:
             warnings.append(
                 f"{path} = {node}: 看起来被四舍五入成整数了（SPEC 要求保留 2 位小数，除非确为 0）"
             )

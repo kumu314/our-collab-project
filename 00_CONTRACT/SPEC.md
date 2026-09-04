@@ -1,6 +1,6 @@
-# 接口规范（SPEC）
+# 接口规范（SPEC）· B题 飞行员空中弹射版
 
-> **只有 captain 能改（通过 PR 合入 main）。** 这份文件定义了 coder 和 writer 之间的**契约接口**。
+> **只有 modeler 能改（通过 PR 合入 main）。** 这份文件定义了 coder 和 writer 之间的**契约接口**。
 > 接口定死了，两个人才能并行干活而不用等对方。
 
 ---
@@ -27,50 +27,58 @@
 ```json
 {
   "meta": {
-    "generated_at": "2026-09-03T14:20:00+08:00",
+    "generated_at": "2026-09-04T14:20:00+08:00",
     "seed": 42,
     "solver_version": "v1.0",
     "reproducible": true
   },
   "P1": {
-    "total_cost": 0.0,
-    "cost_breakdown": {
-      "startup": 0.0,
-      "energy": 0.0,
-      "time_window_penalty": 0.0,
-      "carbon": 0.0
-    },
-    "vehicle_count": 0,
-    "vehicle_used": {"type1": 0, "type2": 0, "type3": 0, "type4": 0, "type5": 0},
-    "nev_count": 0,
-    "carbon_kg": 0.0
+    "T_min": 0.0,
+    "h_min": 0.0,
+    "a_max_g": 0.0,
+    "y_max_abs": 0.0,
+    "sep_x_min": 0.0,
+    "h_open_margin": 0.0,
+    "burn_ok": true
   },
   "P2": {
-    "total_cost": 0.0,
-    "delta_vs_P1": 0.0,
-    "delta_percent": 0.0,
-    "nev_count": 0,
-    "carbon_kg": 0.0
-  },
-  "P3": {
-    "baseline": 0.0,
-    "scenarios": {
-      "cancel": 0.0,
-      "add": 0.0,
-      "tighten": 0.0
-    }
+    "theta_sweep": [],
+    "T_opt": [],
+    "h_min": [],
+    "safe": [],
+    "theta_best": 0.0
   },
   "sensitivity": {
-    "alpha": {"x": [], "y": []},
-    "beta":  {"x": [], "y": []},
-    "radius": {"x": [], "y": []}
+    "v0":   {"x": [], "y": []},
+    "h0":   {"x": [], "y": []},
+    "beta": {"x": [], "y": []},
+    "m":    {"x": [], "y": []}
   },
   "figures": [
-    {"id": "fig4-1", "file": "fig4-1_convergence.png", "caption": "（中文题注）"},
-    {"id": "fig5-1", "file": "fig5-1_routes.png",       "caption": "（中文题注）"}
+    {"id": "fig4-1", "file": "fig4-1_trajectory.png", "caption": "（中文题注）"},
+    {"id": "fig5-1", "file": "fig5-1_theta_sweep.png", "caption": "（中文题注）"}
   ]
 }
 ```
+
+### 字段语义（coder 写数、writer 引用前都看这里）
+
+| 字段 | 单位 | 含义 | 约束来源 |
+|------|------|------|----------|
+| `P1.T_min` | N | 全部安全约束下的最小火箭推力 | 优化目标（FACTS 口径） |
+| `P1.h_min` | m | 推力 = T_min 时允许的最低飞行高度 | Q1 第二问 |
+| `P1.a_max_g` | g | 推力段 5s 内最大合成过载 | ≤ 5（H4） |
+| `P1.y_max_abs` | m | 轨迹最高点绝对海拔 | < 3000 + h0（H5 检验用） |
+| `P1.sep_x_min` | m | 下落全程与机尾的最小水平间距 | ≥ 0（H7，负值 = 碰撞） |
+| `P1.h_open_margin` | m | 开伞点高度裕量 | ≥ 100（H6） |
+| `P1.burn_ok` | bool | 是否全程避开尾喷流锥 | H8 |
+| `P2.theta_sweep` | ° | 扫描的飞行倾角列表 | Q2 |
+| `P2.T_opt` | N | 各 θ 对应最优推力（不可行处为 null） | 与 theta_sweep 等长 |
+| `P2.h_min` | m | 各 θ 对应最低飞行高度（不可行处为 null） | 与 theta_sweep 等长 |
+| `P2.safe` | bool | 各 θ 是否存在可行弹射方案 | 与 theta_sweep 等长 |
+| `P2.theta_best` | ° | 最优倾角 | Q2 结论 |
+| `sensitivity.*.x` | — | 扫描参数值（v0: m/s；h0: m；beta: °；m: kg） | FACTS 3.2 区间 |
+| `sensitivity.*.y` | — | 响应量（**在 meta 里用 `sensitivity_y_label` 注明是 T_min 还是 h_min**） | — |
 
 ### coder 的硬性约束
 1. **字段名不许改、不许加、不许删**（writer 的占位符按这个写）
@@ -84,14 +92,14 @@
 ## 三、writer 的引用方式
 
 ```markdown
-❌ 错误：总成本为 76832.06 元。
-✅ 正确：总成本为 {{P1.total_cost}} 元。
-✅ 正确：新能源车 {{P2.nev_count - P1.nev_count}} 辆，较问题一增加 {{P2.nev_count - P1.nev_count}} 辆。
+❌ 错误：最小推力为 12345.67 牛。
+✅ 正确：最小推力为 {{P1.T_min}} N。
+✅ 正确：飞行倾角 10° 时最低飞行高度 {{P2.h_min[1]}} m，最优推力 {{P2.T_opt[1]}} N。
 ```
 
-**占位符语法**：`{{<results.json 里的路径>}}`
+**占位符语法**：`{{<results.json 里的路径>}}`（数组可用下标）
 
-统稿时 captain 跑 `scripts/fill.py` 批量替换 —— 比三个人各自抄数字可靠 10 倍，
+统稿时 modeler 跑 `scripts/fill.py` 批量替换 —— 比三个人各自抄数字可靠 10 倍，
 而且 coder 重跑出新数字时，**只需再跑一次脚本，全文自动更新**。
 
 ---
@@ -101,7 +109,7 @@
 ### 图（coder 产）
 | 项 | 规范 |
 |---|------|
-| 文件名 | `fig<图号>_<内容>.png`，如 `fig5-3_p1_vs_p2.png` |
+| 文件名 | `fig<图号>_<内容>.png`，如 `fig5-1_theta_sweep.png` |
 | 分辨率 | dpi ≥ 150 |
 | 中文化 | 轴标签 / 图例 / 标题**全部中文**（`plt.rcParams["font.family"]=["SimHei",...]`） |
 | 题注 | 写在 `results.json` 的 `figures[].caption`，**writer 直接引用**，不自己编 |
@@ -131,9 +139,9 @@
 每个角色完成一项后，在 **STATUS.md** 里更新自己的任务行（通过 PR 合入 main）：
 
 ```markdown
-## 2026-09-03 14:20  coder
+## 2026-09-04 14:20  coder
 - [x] P1 主结果跑通 → `01_OUTBOX/coder/results.json`
-- [x] 图4-1 → `01_OUTBOX/coder/fig4-1_convergence.png`
+- [x] 图4-1 → `01_OUTBOX/coder/fig4-1_trajectory.png`
 - [ ] P2（进行中，预计 16:00）
 - ⚠️ 阻塞：无
 - 📌 给 writer：P1 数字已出，可以写 5.1 了
@@ -143,7 +151,7 @@
 
 ---
 
-## 七、统稿流程（captain 的 agent 做）
+## 七、统稿流程（modeler 的 agent 做）
 
 ```bash
 # 1. 拉齐所有人分支后，在 main 上：
@@ -161,4 +169,4 @@ python scripts/audit.py
 bash build_pdf.sh && bash build_docx.sh
 ```
 
-**check_schema.py / fill.py / audit.py 三个脚本放在 `scripts/`，由 captain 维护。**
+**check_schema.py / fill.py / audit.py 三个脚本放在 `scripts/`，由 modeler 维护。**

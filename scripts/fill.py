@@ -7,13 +7,13 @@ fill.py —— 把 writer 章节稿里的 {{...}} 占位符回填成真实数字
 这里一次性把全文数字换成 results.json / FACTS.md 的真值。
 
 数据源：
-  - 01_OUTBOX/coder/results.json   -> {{P1.total_cost}}、{{P2.nev_count - P1.nev_count}}
-  - 00_CONTRACT/FACTS.md            -> {{FACTS.green_zone_count}}
+  - 01_OUTBOX/coder/results.json   -> {{P1.T_min}}、{{P2.theta_best}}
+  - 00_CONTRACT/FACTS.md            -> {{FACTS.m}}
 
 占位符语法（详见 00_CONTRACT/SPEC.md 第三节）：
   {{P1.total_cost}}                 从 results.json 取路径值
-  {{P2.nev_count - P1.nev_count}}   支持四则运算（路径之间）
-  {{FACTS.green_zone_count}}        从 FACTS.md「数值」表取键
+  {{P1.a_max_g - P2.theta_best}}  支持四则运算（路径之间）
+  {{FACTS.m}}        从 FACTS.md「数值」表取键
 
 输出（默认仓库根 filled/）：
   - filled/secXX_*.md        每个章节回填后的版本
