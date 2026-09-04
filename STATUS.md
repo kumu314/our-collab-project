@@ -22,19 +22,22 @@
 
 ### coder（代码手）
 
-- （暂无，待认领 P1）
+- （暂无）
 
 ### writer（论文手）
 
-- [writer] 第一次试跑 — 0% — 预计 0.5 小时 — 刚开始
+- （暂无）
 
 ## 📋 待认领（认领 = 整行搬到自己的分区）
 
+- 【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json（coder，预估 2h）— P1 有数 / P2 P3 可 null，指令见 docs/start-coder.md
+- 【writer 起步】写 §1 问题重述 + §2 问题分析（writer，预估 3h）— 不依赖数字，数字一律占位符，指令见 docs/start-writer.md
+- 【modeler 起步】填 FACTS.md 口径 + 假设清单 H1–H5 + 符号表（modeler，预估 1h）— 阻塞全队，最优先
 - P1 主模型求解与结果（coder，预估 6h）— 输出 results.json + 图
 - P2 政策场景建模（coder，预估 5h）— 输出 results.json 增量
 - P3 灵敏度分析（coder，预估 4h）— 输出 sensitivity 字段
 - 敏感性分析与备选模型（coder，预估 3h）— 独立负责
-- 章节 1–4 建模过程写作（writer，预估 6h）— sec1~sec4
+- 章节 3–4 建模过程与求解算法写作（writer，预估 6h）— sec3~sec4
 - 章节 5 结果分析写作（writer，预估 4h）— sec5，依赖 results.json
 - 代码附录整理（writer，预估 2h）— 按代码附录规范
 
@@ -48,9 +51,10 @@
 
 ## ⚠️ 风险 / 阻塞
 
-- FACTS.md 口径待 captain 按真实赛题填（客户总数、绿色区客户数等）；填前先统口径再填数
+- FACTS.md 口径待 modeler（建模手 kumu314）按真实赛题填——**全队第一阻塞**；填前先统口径再填数
+- 代码手与论文手尚未在 ROLES.md 认领角色
 
 ## 📢 公告
 
-- 2026-09-04：契约升级 v2——新增 `ROLES.md`、PR 自动校验、按角色分区看板。**开工前先 `git pull`，再在 ROLES.md 认领角色。**
-- 2026-09-03：数模协作契约已并入仓库。开工前必读 `.workbuddy/skills/team-contract/SKILL.md` + `00_CONTRACT/FACTS.md`。数字一律用 `{{占位符}}`，禁止手抄。
+- 2026-09-04 12:40：开工指令已就位——coder 读 `docs/start-coder.md`、writer 读 `docs/start-writer.md`、modeler 读 `docs/start-modeler.md`（契约 skill 会自动指到对应文件）。**先 pull、认领角色、认领起步任务，再动手。**
+- 2026-09-04：契约升级 v2——三角色分工（modeler/coder/writer）、PR 自动校验闸、按角色分区看板。**数字一律用 `{{占位符}}`，禁止手抄。**
