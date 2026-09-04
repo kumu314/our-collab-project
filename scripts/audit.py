@@ -79,12 +79,22 @@ def collect_facts_values(path):
 
 
 def extract_draft_numbers(text):
+    # 跳过 Markdown 链接行与图片行
     lines = [ln for ln in text.splitlines() if not ("](" in ln or ".png" in ln.lower())]
+    # 去掉标题行号（# 1. / ## 2.3）
     lines = [re.sub(r"^#{1,6}\s+\d+(?:\.\d+)*\s*", "", ln) for ln in lines]
     cleaned = "\n".join(lines)
-    cleaned = re.sub(r"[图表]\s*\d+\s*-\s*\d+", "", cleaned)
+    # 去掉图/表编号（图 5-1 / 表 2-1）
+    cleaned = re.sub(r"[图表]\s*\d+\s*-\s*\d+", " ", cleaned)
+    # 去掉 LaTeX 数学（含下标 $h_0$ / $_{...}$），避免把下标数字当未溯源
+    cleaned = re.sub(r"\$\$.*?\$\$", " ", cleaned, flags=re.S)
+    cleaned = re.sub(r"\$.*?\$", " ", cleaned)
+    # 去掉行内代码 `...`（含路径 00_CONTRACT/FACTS.md 里的 00）
+    cleaned = re.sub(r"`[^`]*`", " ", cleaned)
     results = []
     for ln in cleaned.splitlines():
+        # 去掉有序列表序号（1. / 1.1. / 2.），避免把列表编号当数字
+        ln = re.sub(r"^\s*(?:\d+\.)+\s+", "", ln)
         for mm in re.finditer(r"-?\d+(?:\.\d+)?", ln):
             val = float(mm.group())
             if 1800 <= val <= 2100:
