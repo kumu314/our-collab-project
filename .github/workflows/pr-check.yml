@@ -33,3 +33,7 @@ jobs:
             --base "${{ github.event.pull_request.base.sha }}" \
             --head "${{ github.event.pull_request.head.sha }}" \
             --role "${{ steps.role.outputs.role }}"
+
+      - name: 跑单元测试（防契约闸回归）
+        run: |
+          python scripts/test_premerge_check.py
