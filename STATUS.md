@@ -23,7 +23,9 @@
 
 ### coder（代码手）
 
-- [coder] 【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json — 100% — 2026-09-04 — 首版 results.json 已产出并通过 check_schema.py；P1: T_min=11122.39 N，binding = H7 垂尾约束（vt_clear_min≈4e-5 m），a_max_g=4.32（<5g 未卡）；P2 暂为 null
+- [coder] 【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json — 100% — 2026-09-04 — 骨架已搭好（首版数值 11122 N 为旧参数，已被下方修正版取代）
+- [coder] P1 主模型求解与结果 — 100% — 2026-09-04 — solve.py 按 model-spec + FACTS v2.1 重跑：T_min=2474.92 N（≈建模手预演 2520 N，稠密采样修复后三者吻合），h_min=1912.17 m（开伞高度，H7 为 binding），a_max_g=3.75（<5g），sep_x_min=2.59 m，vt_clear_min=1.17 m，burn_clear_min=5.98 m；fig4-1 轨迹图 + fig5-1 帕累托前沿（膝点 T*=6246.47 N）；results.json 通过 check_schema.py
+- [coder] 敏感性分析 — 100% — 2026-09-04 — v0/h0/β/m 四参数扫描入 results.json.sensitivity：v0↑/β↑/m↑→T_req↑，h0 不变（T_req 与 h0 解耦，符合 H7 早期掠过判据）
 
 ### writer（论文手）
 
@@ -33,9 +35,7 @@
 
 - 【writer 起步】写 §1 问题重述 + §2 问题分析（writer，预估 3h）— 不依赖数字，数字一律占位符，指令见 docs/start-writer.md
 - 【modeler 起步】填 FACTS.md 口径 + 假设清单 + 符号表（modeler，预估 1h）— ✅ 已完成：弹射版 v2 已入 main
-- P1 主模型求解与结果（coder，预估 6h）— 水平飞行：最小推力 T_min + 最低飞行高度 h_min，输出 results.json + 轨迹图
 - P2 倾角 θ 扫描与最优弹射方案（coder，预估 5h）— 输出 results.json P2 字段 + θ 扫描图
-- 敏感性分析（coder，预估 3h）— v0/h0/β/m 四参数，输出 sensitivity 字段
 - 章节 3–4 建模过程与求解算法写作（writer，预估 6h）— sec3~sec4
 - 章节 5 结果分析写作（writer，预估 4h）— sec5，依赖 results.json
 - 代码附录整理（writer，预估 2h）— 按代码附录规范
@@ -52,8 +52,8 @@
 
 - ~~FACTS.md 口径待填（全队第一阻塞）~~ → **已解除**：弹射版 v2 已锁定（2026-09-04），coder/writer 可直接开工
 - 论文手尚未在 ROLES.md 认领角色
-- 【待 modeler 定口径】`h_min` 语义不清：当前 solver 扫描下限为 50 m，但没有任何约束真正卡住飞行高度下限（T_min 的紧约束是 H7 垂尾）。请建模手确认 h_min 是指「刚好满足 H7/H8 的最小可弹射高度」还是另有判据（如 H9 开伞余量、氧气 h_ox=3000 m）。在此之前 results.json 的 `h_min=50.0` 仅为扫描边界值，不可直接写进论文。
-- 【待 modeler 定口径】`vt_clear_min` 精度：临界值真实量级 3.99e-05 m，按 SPEC 的 round 2 位写进 JSON 后变成 0.0，binding 信息丢失。建议 JSON 保留 6 位小数，或改成输出「刚好通过时的最小间隙」并附 binding 标志字段。
+- ~~【待 modeler 定口径】`h_min` 语义不清~~ → **已解除**：建模手在 PR #10 拍板 `h_min` = 推荐工作点 (T*≈6246 N, h0=1500 m) 下开伞前最低海拔（开伞高度）= 1912.17 m，已写入 results.json.P1.h_min
+- ~~【待 modeler 定口径】`vt_clear_min` 精度~~ → **已解除**：results.json 改为存全精度（不四舍五入），vt_clear_min=1.171 m，binding 信息保留
 
 ## 📢 公告
 
