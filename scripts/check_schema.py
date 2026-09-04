@@ -33,7 +33,9 @@ EXPECTED = {
         "h_min": (int, float),          # m 最低飞行高度
         "a_max_g": (int, float),        # g 推力段最大过载
         "y_max_abs": (int, float),      # m 轨迹最高绝对海拔
-        "sep_x_min": (int, float),      # m 与机尾最小水平间距（≥0 安全）
+        "sep_x_min": (int, float),      # m 与垂尾/机尾的最小纵向间隙（≥0 安全）
+        "vt_clear_min": (int, float),   # m 过垂尾时的最小垂直余量 y - h_vt（>0 安全）
+        "burn_clear_min": (int, float), # m 离喷流锥面的最小距离（>0 安全）
         "h_open_margin": (int, float),  # m 开伞点高度裕量（≥100）
         "burn_ok": bool,                # 是否全程避开尾喷流锥
     },
