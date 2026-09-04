@@ -96,8 +96,8 @@ def main():
         if not content:
             errors.append(f"`{work_file}` 是空文件 —— 试跑别交空壳，写点真实内容。")
 
-    # 4. STATUS.md 别动别人的条目
-    if "STATUS.md" in files:
+    # 4. STATUS.md 别动别人的条目（captain 拥有看板，豁免）
+    if "STATUS.md" in files and role != "captain":
         r = run(["git", "diff", f"{args.base}...{args.head}", "--", "STATUS.md"])
         for line in r.stdout.splitlines():
             if not line.startswith(("+", "-")) or line.startswith(("+++", "---")):
