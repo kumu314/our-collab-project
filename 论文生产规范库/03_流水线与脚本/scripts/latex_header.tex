@@ -1,0 +1,39 @@
+% 让图片 caption 不显示 "Figure N:" 前缀，只保留我们手写的中文 "图X-X"
+\usepackage{caption}
+\captionsetup[figure]{labelformat=empty,labelsep=none}
+
+% 代码块：listings + 多色高亮（关键字/字符串/注释/数字/内置函数）
+\usepackage{xcolor}
+\definecolor{cKw}{HTML}{0000AA}    % 关键字：深蓝
+\definecolor{cStr}{HTML}{B22222}   % 字符串：红
+\definecolor{cCm}{HTML}{008000}    % 注释：绿
+\definecolor{cNum}{HTML}{8A2BE2}   % 数字：紫
+\definecolor{cFn}{HTML}{008B8B}    % 内置函数：青
+\definecolor{cBg}{HTML}{F8F8F8}    % 浅灰底
+
+\usepackage{listings}
+
+% 关键：用 \AtBeginDocument 包一层，确保我们的 lstset 在 pandoc 模板注入的
+% lstset 之后执行，从而不会被模板默认配置覆盖。
+\AtBeginDocument{%
+\lstset{%
+  frame=single,%
+  breaklines=true,%
+  basicstyle=\ttfamily\small\color{black},%
+  extendedchars=true,%
+  columns=flexible,%
+  keepspaces=true,%
+  showstringspaces=false,%
+  tabsize=4,%
+  backgroundcolor=\color{cBg},%
+  keywordstyle=\color{cKw}\bfseries,%
+  stringstyle=\color{cStr},%
+  commentstyle=\color{cCm}\itshape,%
+  numberstyle=\color{cNum},%
+  identifierstyle=\color{black},%
+  emphstyle=\color{cFn},%
+  morekeywords={True,False,None},%
+  emph={print,len,range,min,max,sum,abs,sorted,enumerate,open,zip,list,dict,set,tuple,int,float,str,round,type,isinstance,map,filter,any,all,hasattr,getattr,setattr,__init__,__main__},%
+  literate={×}{$\times$}{1} {÷}{$\div$}{1} {≤}{$\le$}{1} {≥}{$\ge$}{1} {≠}{$\ne$}{1} {≈}{$\approx$}{1} {→}{$\to$}{1} {←}{$\leftarrow$}{1} {↦}{$\mapsto$}{1} {∈}{$\in$}{1} {∑}{$\sum$}{1} {∏}{$\prod$}{1} {∀}{$\forall$}{1} {∃}{$\exists$}{1} {α}{$\alpha$}{1} {β}{$\beta$}{1} {γ}{$\gamma$}{1} {δ}{$\delta$}{1} {ε}{$\epsilon$}{1} {λ}{$\lambda$}{1} {μ}{$\mu$}{1} {σ}{$\sigma$}{1} {θ}{$\theta$}{1} {π}{$\pi$}{1} {ω}{$\omega$}{1} {Γ}{$\Gamma$}{1} {Δ}{$\Delta$}{1} {Σ}{$\Sigma$}{1} {Π}{$\Pi$}{1} {Ω}{$\Omega$}{1}%
+}%
+}
