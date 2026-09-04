@@ -48,6 +48,28 @@ def file_content(ref, path):
     return r.stdout if r.returncode == 0 else ""
 
 
+def status_violations(diff_text, role):
+    """解析 STATUS.md 的 git diff 文本，返回动了别人条目的违规说明列表。
+
+    `OTHER_ROLE_TAG` 是带捕获组的正则，`re.findall` 返回的是**裸角色名**
+    （如 "writer"，不含方括号）。历史上曾误写成 `tag != f"[{role}]"`，
+    导致任何带角色标签的改动都被判成"别人的条目"，全队 PR 全红。
+    这里必须与裸 `role` 比较，见 PR #9 修复。
+    """
+    violations = []
+    for line in diff_text.splitlines():
+        if not line.startswith(("+", "-")) or line.startswith(("+++", "---")):
+            continue
+        for tag in OTHER_ROLE_TAG.findall(line):
+            if tag != role:
+                violations.append(
+                    f"STATUS.md 里动了别人的条目：{line.strip()[:60]}。"
+                    "只准改自己的行和「待认领」池。"
+                )
+                break
+    return violations
+
+
 def errs(errors):
     if not errors:
         return
@@ -99,14 +121,7 @@ def main():
     # 4. STATUS.md 别动别人的条目（modeler 拥有看板，豁免）
     if "STATUS.md" in files and role != "modeler":
         r = run(["git", "diff", f"{args.base}...{args.head}", "--", "STATUS.md"])
-        for line in r.stdout.splitlines():
-            if not line.startswith(("+", "-")) or line.startswith(("+++", "---")):
-                continue
-            for tag in OTHER_ROLE_TAG.findall(line):
-                if tag != f"[{role}]":
-                    errors.append(f"STATUS.md 里动了别人的条目：{line.strip()[:60]}。"
-                                  "只准改自己的行和「待认领」池。")
-                    break
+        errors.extend(status_violations(r.stdout, role))
 
     # 5. coder 改 results.json 时校验 schema
     if role == "coder" and "01_OUTBOX/coder/results.json" in files:
