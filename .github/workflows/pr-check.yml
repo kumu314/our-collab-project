@@ -1,0 +1,35 @@
+name: PR 契约校验
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 解析分支里的角色
+        id: role
+        run: |
+          branch="${{ github.head_ref }}"
+          role=$(echo "$branch" | sed -n 's|^agent/\([^/]*\)/.*|\1|p')
+          if [ -z "$role" ]; then role="unknown"; fi
+          echo "role=$role" >> "$GITHUB_OUTPUT"
+          echo "分支=$branch 角色=$role"
+
+      - name: 跑契约校验
+        run: |
+          python scripts/premerge_check.py \
+            --base "${{ github.event.pull_request.base.sha }}" \
+            --head "${{ github.event.pull_request.head.sha }}" \
+            --role "${{ steps.role.outputs.role }}"
