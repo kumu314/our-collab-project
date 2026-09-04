@@ -11,7 +11,7 @@
 | 角色 | 谁 | 认领人 |
 |------|---|--------|
 | modeler | 建模手 | kumu314（仓库管理员） |
-| coder | 代码手（兼队长） | ⬜ 待认领 |
+| coder | 代码手（兼队长） | Blair（Blair-wealthy-2007） |
 | writer | 论文手 | ⬜ 待认领 |
 
 ## 🚀 进行中
@@ -23,7 +23,7 @@
 
 ### coder（代码手）
 
-- （暂无）
+- [coder] 【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json — 100% — 2026-09-04 — 首版 results.json 已产出并通过 check_schema.py；P1: T_min=11122.39 N，binding = H7 垂尾约束（vt_clear_min≈4e-5 m），a_max_g=4.32（<5g 未卡）；P2 暂为 null
 
 ### writer（论文手）
 
@@ -31,7 +31,6 @@
 
 ## 📋 待认领（认领 = 整行搬到自己的分区）
 
-- 【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json（coder，预估 2h）— P1 有数 / P2 可 null，指令见 docs/start-coder.md
 - 【writer 起步】写 §1 问题重述 + §2 问题分析（writer，预估 3h）— 不依赖数字，数字一律占位符，指令见 docs/start-writer.md
 - 【modeler 起步】填 FACTS.md 口径 + 假设清单 + 符号表（modeler，预估 1h）— ✅ 已完成：弹射版 v2 已入 main
 - P1 主模型求解与结果（coder，预估 6h）— 水平飞行：最小推力 T_min + 最低飞行高度 h_min，输出 results.json + 轨迹图
@@ -52,7 +51,9 @@
 ## ⚠️ 风险 / 阻塞
 
 - ~~FACTS.md 口径待填（全队第一阻塞）~~ → **已解除**：弹射版 v2 已锁定（2026-09-04），coder/writer 可直接开工
-- 代码手与论文手尚未在 ROLES.md 认领角色
+- 论文手尚未在 ROLES.md 认领角色
+- 【待 modeler 定口径】`h_min` 语义不清：当前 solver 扫描下限为 50 m，但没有任何约束真正卡住飞行高度下限（T_min 的紧约束是 H7 垂尾）。请建模手确认 h_min 是指「刚好满足 H7/H8 的最小可弹射高度」还是另有判据（如 H9 开伞余量、氧气 h_ox=3000 m）。在此之前 results.json 的 `h_min=50.0` 仅为扫描边界值，不可直接写进论文。
+- 【待 modeler 定口径】`vt_clear_min` 精度：临界值真实量级 3.99e-05 m，按 SPEC 的 round 2 位写进 JSON 后变成 0.0，binding 信息丢失。建议 JSON 保留 6 位小数，或改成输出「刚好通过时的最小间隙」并附 binding 标志字段。
 
 ## 📢 公告
 
