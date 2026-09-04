@@ -7,6 +7,7 @@
 ## 🚀 进行中
 
 - [captain] 数模契约并入仓库 — 100% — 2026-09-03 — FACTS/SPEC/模板/脚本/自动加载 skill 已就位，待合并到 main
+- [blair] 代码附录整理（writer，预估 2h）— 0% — 预计 2 小时 — 刚开始
 
 ## 📋 待认领
 
@@ -15,7 +16,7 @@
 - P3 灵敏度分析（coder，预估 4h）— 输出 sensitivity 字段
 - 章节 1–4 建模过程写作（writer，预估 6h）— sec1~sec4
 - 章节 5 结果分析写作（writer，预估 4h）— sec5，依赖 results.json
-- 代码附录整理（writer，预估 2h）— 按代码附录规范
+
 - 敏感性分析与备选模型（coder，预估 3h）— 独立负责
 
 ## ✅ 已完成
