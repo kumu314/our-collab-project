@@ -38,6 +38,8 @@
     "a_max_g": 0.0,
     "y_max_abs": 0.0,
     "sep_x_min": 0.0,
+    "vt_clear_min": 0.0,
+    "burn_clear_min": 0.0,
     "h_open_margin": 0.0,
     "burn_ok": true
   },
@@ -69,9 +71,11 @@
 | `P1.h_min` | m | 推力 = T_min 时允许的最低飞行高度 | Q1 第二问 |
 | `P1.a_max_g` | g | 推力段 5s 内最大合成过载 | ≤ 5（H4） |
 | `P1.y_max_abs` | m | 轨迹最高点绝对海拔 | < 3000 + h0（H5 检验用） |
-| `P1.sep_x_min` | m | 下落全程与机尾的最小水平间距 | ≥ 0（H7，负值 = 碰撞） |
+| `P1.sep_x_min` | m | 与垂尾/机尾的最小纵向间隙（经过障碍区间时的最小富裕距离） | ≥ 0（H7，负值 = 碰撞） |
+| `P1.vt_clear_min` | m | 经过垂尾纵向区间 $[s_{vt},L_{plane}]$ 时的**最小垂直余量** $y-h_{vt}$ | > 0（H7，越大越安全） |
+| `P1.burn_clear_min` | m | 在喷流锥纵向区间内的**最小离锥面距离** $\lvert y+\Delta y_n\rvert-(s-x_{exh})\tan\alpha$ 的最小值 | > 0（H8，越大越安全） |
 | `P1.h_open_margin` | m | 开伞点高度裕量 | ≥ 100（H6） |
-| `P1.burn_ok` | bool | 是否全程避开尾喷流锥 | H8 |
+| `P1.burn_ok` | bool | 是否全程避开尾喷流锥 | H8（`burn_clear_min > 0` 即为 true） |
 | `P2.theta_sweep` | ° | 扫描的飞行倾角列表 | Q2 |
 | `P2.T_opt` | N | 各 θ 对应最优推力（不可行处为 null） | 与 theta_sweep 等长 |
 | `P2.h_min` | m | 各 θ 对应最低飞行高度（不可行处为 null） | 与 theta_sweep 等长 |
