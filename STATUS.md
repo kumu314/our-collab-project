@@ -19,6 +19,7 @@
 ### modeler（建模手）
 
 - [modeler] 数模契约并入仓库 — 100% — 2026-09-03 — FACTS/SPEC/模板/脚本/自动加载 skill 已就位
+- [modeler] FACTS 弹射题版 v2（五项参数调研 + 拍板锁定）— 100% — 2026-09-04 — 本 PR
 
 ### coder（代码手）
 
@@ -30,13 +31,12 @@
 
 ## 📋 待认领（认领 = 整行搬到自己的分区）
 
-- 【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json（coder，预估 2h）— P1 有数 / P2 P3 可 null，指令见 docs/start-coder.md
+- 【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json（coder，预估 2h）— P1 有数 / P2 可 null，指令见 docs/start-coder.md
 - 【writer 起步】写 §1 问题重述 + §2 问题分析（writer，预估 3h）— 不依赖数字，数字一律占位符，指令见 docs/start-writer.md
-- 【modeler 起步】填 FACTS.md 口径 + 假设清单 H1–H5 + 符号表（modeler，预估 1h）— 阻塞全队，最优先
-- P1 主模型求解与结果（coder，预估 6h）— 输出 results.json + 图
-- P2 政策场景建模（coder，预估 5h）— 输出 results.json 增量
-- P3 灵敏度分析（coder，预估 4h）— 输出 sensitivity 字段
-- 敏感性分析与备选模型（coder，预估 3h）— 独立负责
+- 【modeler 起步】填 FACTS.md 口径 + 假设清单 + 符号表（modeler，预估 1h）— ✅ 已完成：弹射版 v2 已入 main
+- P1 主模型求解与结果（coder，预估 6h）— 水平飞行：最小推力 T_min + 最低飞行高度 h_min，输出 results.json + 轨迹图
+- P2 倾角 θ 扫描与最优弹射方案（coder，预估 5h）— 输出 results.json P2 字段 + θ 扫描图
+- 敏感性分析（coder，预估 3h）— v0/h0/β/m 四参数，输出 sensitivity 字段
 - 章节 3–4 建模过程与求解算法写作（writer，预估 6h）— sec3~sec4
 - 章节 5 结果分析写作（writer，预估 4h）— sec5，依赖 results.json
 - 代码附录整理（writer，预估 2h）— 按代码附录规范
@@ -51,10 +51,11 @@
 
 ## ⚠️ 风险 / 阻塞
 
-- FACTS.md 口径待 modeler（建模手 kumu314）按真实赛题填——**全队第一阻塞**；填前先统口径再填数
+- ~~FACTS.md 口径待填（全队第一阻塞）~~ → **已解除**：弹射版 v2 已锁定（2026-09-04），coder/writer 可直接开工
 - 代码手与论文手尚未在 ROLES.md 认领角色
 
 ## 📢 公告
 
+- 2026-09-04 13:30：**赛题 = 模拟三 B 题 飞行员空中弹射，FACTS 已弹射化并锁定全部参数**——输入参数 17 项 + 敏感性区间见 `00_CONTRACT/FACTS.md`；results.json schema 已换新（P1: T_min/h_min/a_max_g…，P2: theta_sweep/T_opt…）见 `00_CONTRACT/SPEC.md`。旧 C 题 schema 作废。
 - 2026-09-04 12:40：开工指令已就位——coder 读 `docs/start-coder.md`、writer 读 `docs/start-writer.md`、modeler 读 `docs/start-modeler.md`（契约 skill 会自动指到对应文件）。**先 pull、认领角色、认领起步任务，再动手。**
 - 2026-09-04：契约升级 v2——三角色分工（modeler/coder/writer）、PR 自动校验闸、按角色分区看板。**数字一律用 `{{占位符}}`，禁止手抄。**

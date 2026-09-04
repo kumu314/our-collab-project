@@ -55,15 +55,15 @@ git checkout -b agent/writer/sec1-sec2 main
 
 | 文件 | 内容 |
 |------|------|
-| `sec1_problem.md` | 问题重述：背景、要解决的三个子问题、数据来源与规模 |
+| `sec1_problem.md` | 问题重述：背景、两个问题（Q1 水平飞行最小推力+最低高度；Q2 倾角 θ 最优弹射方案）、参数假设来源（FACTS.md） |
 | `sec2_analysis.md` | 问题分析：假设、符号说明、建模思路 |
 
 ### 1.4 写作硬规则（违反会被打回）
 
 - **一切数字写占位符**，禁止手抄、禁止估算：
-  - `总成本为 {{P1.total_cost}} 元`
-  - `新能源车 {{P2.nev_count - P1.nev_count}} 辆`（支持四则运算）
-  - `绿色区客户 {{FACTS.green_zone_count}} 个`
+  - `最小推力为 {{P1.T_min}} N`
+  - `最低飞行高度 {{P1.h_min}} m`（数组可下标：`{{P2.T_opt[1]}}`）
+  - `人椅系统质量 {{FACTS.m}} kg`
 - 图引用写「**如图 5-1 所示**」，**禁写** `见 xxx.png`
 - 图题注不写占位符，直接引用 results.json 里 `figures[].caption`
 - 不用「值得注意的是 / 不难看出 / 综上所述 / 随着…的不断发展」
