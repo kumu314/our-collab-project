@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "generated_at": "2026-09-04T18:15:16+08:00",
+    "seed": 42,
+    "solver_version": "v1.0",
+    "reproducible": true
+  },
+  "P1": {
+    "T_min": 11122.39,
+    "h_min": 50.0,
+    "a_max_g": 4.32,
+    "y_max_abs": 8739.01,
+    "sep_x_min": 0.0,
+    "vt_clear_min": 0.0,
+    "burn_clear_min": 7.07,
+    "h_open_margin": 8739.01,
+    "burn_ok": true
+  },
+  "P2": {
+    "theta_sweep": [],
+    "T_opt": [],
+    "h_min": [],
+    "safe": [],
+    "theta_best": 0.0
+  },
+  "sensitivity": {
+    "v0": {
+      "x": [],
+      "y": []
+    },
+    "h0": {
+      "x": [],
+      "y": []
+    },
+    "beta": {
+      "x": [],
+      "y": []
+    },
+    "m": {
+      "x": [],
+      "y": []
+    }
+  },
+  "figures": []
+}
