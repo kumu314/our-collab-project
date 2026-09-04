@@ -7,6 +7,7 @@
 ## 🚀 进行中
 
 - [captain] 数模契约并入仓库 — 100% — 2026-09-03 — FACTS/SPEC/模板/脚本/自动加载 skill 已就位，待合并到 main
+- [ningxiachufang] 第一次试跑 — 0% — 2026-09-04 — 产出 01_OUTBOX/coder/work-ningxiachufang.md，验证分支+PR 链路
 
 ## 📋 待认领
 
