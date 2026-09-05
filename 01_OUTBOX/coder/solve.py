@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-B题 飞行员空中弹射 — coder 求解器（修正版 v2，依据 docs/model-spec.md v2.1 + PR#10 根因清单）
+B题 飞行员空中弹射 — coder 求解器（修正版 v2.2，依据 docs/model-spec.md + PR#10 根因清单）
+
+v2.2 新增 P2：θ（导轨后倾角）扫描 0°–30°，每 θ 求 T_req / 帕累托膝点 T_opt /
+工作点开伞高度 h_min，theta_best 取可行 θ 中 T_req 最小者（SPEC P2 字段口径）。
+附带 fig6-1_theta_sweep.png 与 table6-1_theta_sweep.csv。
 
 关键修正（对照建模手 7 条重跑清单 + 独立 RK4 交叉验证）：
   1. 参数全部从 FACTS.md v2.1 读取：h_vt=3.5, v_open=45 (v_open_max=97 仅校验),
@@ -214,6 +218,161 @@ def knee_select(Ts, Hs):
 
 
 # ----------------------------------------------------------------------------
+# P2：θ（导轨后倾角）扫描与最优弹射方案（SPEC P2 字段 + model-spec 膝点定义）
+# ----------------------------------------------------------------------------
+def feas_min_T(p, lo, hi, n_scan=8):
+    """在 [lo,hi] 内找最小可行推力：先粗扫定位可行区间，再二分。
+    假设可行性对 T 单调（vt_clear/burn_clear/y_open 随 T 增，H5 在 T<=T_max 内不卡）。"""
+    if feasible(lo, p["h0_base"], p):
+        return float(lo)
+    if not feasible(hi, p["h0_base"], p):
+        return float("nan")
+    a, b = lo, hi
+    grid = np.linspace(lo, hi, n_scan)
+    a = lo
+    for x in grid[1:]:
+        if feasible(float(x), p["h0_base"], p):
+            b = float(x)
+            break
+        a = float(x)
+    else:
+        return float("nan")
+    while b - a > 1.0:
+        mid = 0.5 * (a + b)
+        if feasible(mid, p["h0_base"], p):
+            b = mid
+        else:
+            a = mid
+    return float(b)
+
+
+def feas_max_T(p, lo, hi):
+    """在 [lo,hi] 内找最大可行推力（H5 氧限在高 T 端可能卡上界）。
+    前提：feasible(hi)=False 且 feasible(lo)=True，单调二分。"""
+    a, b = lo, hi
+    while b - a > 1.0:
+        mid = 0.5 * (a + b)
+        if feasible(mid, p["h0_base"], p):
+            a = mid
+        else:
+            b = mid
+    return float(a)
+
+
+def solve_theta(p, theta_deg, n_pareto=60):
+    """单个 θ 的完整求解。返回 dict(theta, T_req, T_lo, T_opt, h_min, safe, margins)。
+    - T_req：仅 H7 余量 0.5 m 的下界（信息量，本身可能不可行）；
+    - T_lo：全约束（H4/H5/H6/H7/H8）下的真实可行下界；
+    - T_opt：[T_lo, T_hi] 上帕累托前沿膝点 = 该 θ 的推荐推力；
+    - h_min：T_opt 工作点的开伞前最低海拔。"""
+    q = dict(p)
+    q["beta"] = float(theta_deg)
+    trq = T_req(q)                     # H7 余量 0.5 m 口径（与 P1 一致）
+    if trq != trq:                     # NaN：余量口径下 T_max 内无解
+        trq = None
+
+    # 真实可行下界：优先 trq，否则粗扫+二分
+    if trq is not None and feasible(trq, q["h0_base"], q):
+        T_lo = float(trq)
+    else:
+        T_lo = feas_min_T(q, 0.0, T_MAX)
+    if T_lo != T_lo:                   # 全区间不可行
+        return {"theta": float(theta_deg), "T_req": trq, "T_lo": None,
+                "T_opt": None, "h_min": None, "safe": False, "margins": None}
+
+    # 可行上界（H5 氧限在高 T 端可能卡上界；本参数组内多为 T_MAX）
+    if feasible(T_MAX, q["h0_base"], q):
+        T_hi = float(T_MAX)
+    else:
+        T_hi = feas_max_T(q, T_lo, T_MAX)
+
+    # 帕累托前沿 + 膝点（model-spec 决策 2 同一口径）
+    Ts, Hs = build_pareto(q, T_lo, T_hi, N=n_pareto)
+    k, _ = knee_select(Ts, Hs)
+    T_star = float(Ts[k])
+    r = simulate(T_star, q["h0_base"], q)
+    c = constraints(r["t"], r["Y"], q["h0_base"], q)
+    h_min = float(r["y_open"]) if r["y_open"] is not None else float("nan")
+    return {"theta": float(theta_deg), "T_req": trq, "T_lo": T_lo,
+            "T_opt": T_star, "h_min": h_min, "safe": True, "margins": c}
+
+
+def solve_p2(p, th_lo=0.0, th_hi=30.0, th_step=2.5):
+    """θ 扫描主入口。theta_best = 可行 θ 中推荐推力 T_opt（膝点）最小者
+    （并列取 h_min 大）。T_req 仅为 H7 余量下界，不作排名依据。"""
+    thetas = list(np.arange(th_lo, th_hi + 1e-9, th_step))
+    out = {"theta_sweep": [], "T_opt": [], "h_min": [], "safe": [],
+           "theta_best": None, "_detail": []}
+    best = None
+    for th in thetas:
+        d = solve_theta(p, float(th))
+        out["theta_sweep"].append(round(d["theta"], 2))
+        out["T_opt"].append(None if d["T_opt"] is None else round(d["T_opt"], 2))
+        out["h_min"].append(None if d["h_min"] is None or d["h_min"] != d["h_min"]
+                            else round(d["h_min"], 2))
+        out["safe"].append(bool(d["safe"]))
+        out["_detail"].append(d)
+        tq = d["T_req"] if d["T_req"] is not None else float("nan")
+        tlo_s = "N/A" if d["T_lo"] is None else f"{d['T_lo']:8.1f}"
+        topt_s = "N/A" if d["T_opt"] is None else f"{d['T_opt']:8.1f}"
+        hmin_s = "N/A" if (d["h_min"] is None or d["h_min"] != d["h_min"]) \
+            else f"{d['h_min']:8.1f}"
+        print(f"    θ={d['theta']:5.1f}°  safe={str(d['safe']):5}  "
+              f"T_req={'N/A' if tq != tq else f'{tq:8.1f}'}  T_lo={tlo_s}  "
+              f"T_opt={topt_s}  h_min={hmin_s}", flush=True)
+        if d["safe"]:
+            key = (d["T_opt"], -(d["h_min"] or 0.0))
+            if best is None or key < best[0]:
+                best = (key, d)
+    out["theta_best"] = None if best is None else round(best[1]["theta"], 2)
+    out["_best_detail"] = best[1] if best else None
+    return out
+
+
+def fig_theta_sweep(p2, T_max, fname):
+    """图6-1：θ 扫描两联图。(a) T_req/T_opt–θ 与可行域；(b) h_min–θ。"""
+    thetas = p2["theta_sweep"]
+    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+    trq = [d["T_req"] if d["T_req"] is not None else np.nan for d in p2["_detail"]]
+    tlo = [d["T_lo"] if d["T_lo"] is not None else np.nan for d in p2["_detail"]]
+    top = [d["T_opt"] if d["T_opt"] is not None else np.nan for d in p2["_detail"]]
+    ax[0].plot(thetas, trq, "o-", color="green", lw=1.8, ms=5,
+               label="T_req（仅 H7 余量 0.5 m 下界）")
+    ax[0].plot(thetas, tlo, "^-", color="teal", lw=1.5, ms=5,
+               label="T_lo（全约束真实可行下界）")
+    ax[0].plot(thetas, top, "s-", color="purple", lw=1.8, ms=5,
+               label="T_opt（帕累托膝点）")
+    ax[0].axhline(T_max, color="red", ls="--", lw=1.2,
+                  label=f"T_max（5g 上界）= {T_max:.0f} N")
+    for th, s in zip(thetas, p2["safe"]):
+        if not s:
+            ax[0].plot(th, T_max, "rx", ms=11, mew=2.5)
+    ax[0].set_xlabel("导轨后倾角 θ / °")
+    ax[0].set_ylabel("推力 / N")
+    ax[0].set_title("图6-1(a) 各倾角的推力下界与膝点")
+    ax[0].legend(fontsize=8)
+    ax[0].grid(alpha=0.3)
+
+    hmin = [d["h_min"] if d["h_min"] is not None else np.nan for d in p2["_detail"]]
+    ax[1].plot(thetas, hmin, "o-", color="blue", lw=1.8, ms=5,
+               label="h_min（膝点工作点开伞高度）")
+    if p2["theta_best"] is not None:
+        ax[1].axvline(p2["theta_best"], color="red", ls="--", lw=1.2,
+                      label=f"最优倾角 θ* = {p2['theta_best']:.1f}°")
+    ax[1].set_xlabel("导轨后倾角 θ / °")
+    ax[1].set_ylabel("开伞前最低海拔 h_min / m")
+    ax[1].set_title("图6-1(b) 各倾角最优方案的开伞高度")
+    ax[1].legend(fontsize=8)
+    ax[1].grid(alpha=0.3)
+
+    fig.tight_layout()
+    fig.savefig(fname, dpi=150)
+    plt.close(fig)
+    return fname
+
+
+# ----------------------------------------------------------------------------
 # 图 4-1：弹射轨迹 + 飞机随体系相对位置
 # ----------------------------------------------------------------------------
 def fig_trajectory(r, Tstar, p):
@@ -350,12 +509,26 @@ def main():
         "m": sens("m", 150.0, 190.0),
     }
 
-    # 6) 出图
+    # 6) P2：θ 扫描与最优弹射方案
+    print("\n[6] P2 θ 扫描（0°–30°，步长 2.5°）...")
+    p2 = solve_p2(P)
+    th_best = p2["theta_best"]
+    bd = p2["_best_detail"]
+    if bd is not None:
+        trq_s = "N/A" if bd["T_req"] is None else f"{bd['T_req']:.1f}"
+        print(f"    最优倾角 θ* = {th_best:.1f}°  "
+              f"(T_req={trq_s} N, T_opt={bd['T_opt']:.1f} N, "
+              f"h_min={bd['h_min']:.1f} m)")
+    else:
+        print("    警告：扫描范围内无可行倾角")
+
+    # 7) 出图
     f1 = fig_trajectory(r, T_star, P)
     f2 = fig_pareto(Ts, Hs, k, T_star, P, T_req_v)
-    print(f"\n[5] 图已输出:\n    {f1}\n    {f2}")
+    f3 = fig_theta_sweep(p2, T_MAX, os.path.join(OUT, "fig6-1_theta_sweep.png"))
+    print(f"\n[7] 图已输出:\n    {f1}\n    {f2}\n    {f3}")
 
-    # 7) 写 results.json（全精度；近零用科学计数法）
+    # 8) 写 results.json（全精度；近零用科学计数法）
     def clean(v):
         if v is None:
             return None
@@ -363,15 +536,24 @@ def main():
             return float(f"{v:.3e}")
         return v
 
+    P2_OUT = {
+        "theta_sweep": p2["theta_sweep"],
+        "T_opt": p2["T_opt"],
+        "h_min": p2["h_min"],
+        "safe": p2["safe"],
+        "theta_best": p2["theta_best"] if p2["theta_best"] is not None else 0.0,
+    }
+
     res = {
         "meta": {
             "generated_at": datetime.datetime.now().astimezone().isoformat(),
             "seed": 42,
-            "solver_version": "v2.1",
+            "solver_version": "v2.2",
             "reproducible": True,
             "T_star_knee_N": round(T_star, 2),
             "T_req_N": round(T_req_v, 2),
             "T_max_N": round(T_MAX, 2),
+            "sensitivity_y_label": "T_req_N（满足 H7 垂尾余量 0.5 m 的最小推力）",
         },
         "P1": {
             "T_min": round(T_req_v, 4),
@@ -384,10 +566,7 @@ def main():
             "h_open_margin": round(float(r["y_open"]), 4),
             "burn_ok": bool(c["burn_ok"]),
         },
-        "P2": {
-            "theta_sweep": [], "T_opt": [], "h_min": [], "safe": [],
-            "theta_best": 0.0,
-        },
+        "P2": P2_OUT,
         "sensitivity": SENS,
         "figures": [
             {"id": "fig4-1", "file": "fig4-1_trajectory.png",
@@ -400,20 +579,37 @@ def main():
                         f"为 H7 下界，红虚线 T_max={T_MAX:.0f} N 为 5g 上界）。红点为膝点 T*≈{T_star:.0f} N，"
                         f"兼顾推力小与离地安全裕度高。h_min 此处取基线 h0=1500 m 下开伞前最低海拔（开伞高度），"
                         f"推力越大开伞越高。a_max_g 为火箭诱发过载（不含 ≈18g 气动风阻，H4 口径）。"},
+            {"id": "fig6-1", "file": "fig6-1_theta_sweep.png",
+             "caption": (f"图6-1 导轨后倾角 θ 扫描（0°–30°，步长 2.5°）。(a) 各倾角的推力下界 "
+                         f"T_req（仅 H7 余量 0.5 m）、T_lo（全约束真实可行下界，低推力端受"
+                         f"开伞触发约束限制）与帕累托膝点 T_opt，红色 × 为不可行倾角，"
+                         f"红虚线为 5g 上界 T_max={T_MAX:.0f} N；(b) 各倾角最优方案的开伞前最低海拔 "
+                         f"h_min，红虚线为最优倾角 θ*={p2['theta_best'] if p2['theta_best'] is not None else 'N/A'}°"
+                         f"（可行 θ 中推荐推力 T_opt 最小者）。θ 越大推力下界越高：导轨后倾使推力"
+                         f"竖直分量减小、人椅越过垂尾更慢，故在结构允许范围内宜取较小后倾角。")},
         ],
     }
     rp = os.path.join(OUT, "results.json")
     with open(rp, "w", encoding="utf-8") as fh:
         json.dump(res, fh, ensure_ascii=False, indent=2)
-    print(f"\n[6] results.json 已输出: {rp}")
+    print(f"\n[8] results.json 已输出: {rp}")
 
-    # 8) 帕累托表
+    # 9) 帕累托表 + θ 扫描表
     tcsv = os.path.join(OUT, "table5-1_pareto.csv")
     with open(tcsv, "w", encoding="utf-8") as fh:
         fh.write("T_N,h_min_m,is_knee\n")
         for i, (T, h) in enumerate(zip(Ts, Hs)):
             fh.write(f"{T:.3f},{h:.4f},{i == k}\n")
-    print(f"[7] 表已输出: {tcsv}")
+    tcsv2 = os.path.join(OUT, "table6-1_theta_sweep.csv")
+    with open(tcsv2, "w", encoding="utf-8") as fh:
+        fh.write("theta_deg,T_req_H7margin_N,T_feas_lo_N,T_opt_knee_N,h_min_m,safe\n")
+        for d in p2["_detail"]:
+            tq = f"{d['T_req']:.2f}" if d["T_req"] is not None else ""
+            tl = f"{d['T_lo']:.2f}" if d["T_lo"] is not None else ""
+            to = f"{d['T_opt']:.2f}" if d["T_opt"] is not None else ""
+            hm = f"{d['h_min']:.2f}" if (d["h_min"] is not None and d["h_min"] == d["h_min"]) else ""
+            fh.write(f"{d['theta']:.1f},{tq},{tl},{to},{hm},{d['safe']}\n")
+    print(f"[8] 表已输出:\n    {tcsv}\n    {tcsv2}")
 
     print("\n" + "=" * 74)
     print("关键结论")
@@ -423,6 +619,12 @@ def main():
     print(f"  膝点 T*               = {T_star:.2f} N  (h_min={Hs[k]:.2f} m)")
     print(f"  P1.h_min (开伞前最低海拔) = {P1_h_min:.2f} m")
     print(f"  binding 约束          = {', '.join(binding)}")
+    if th_best is not None:
+        trq_s = "N/A" if bd["T_req"] is None else f"{bd['T_req']:.1f}"
+        print(f"  P2 最优倾角 θ*        = {th_best:.1f}°  "
+              f"(T_req={trq_s} N, T_opt={bd['T_opt']:.1f} N, h_min={bd['h_min']:.1f} m)")
+    else:
+        print("  P2 最优倾角           = 扫描范围内无可行解")
     print("=" * 74)
 
 
