@@ -20,7 +20,7 @@
 
 - [modeler] 数模契约并入仓库 — 100% — 2026-09-03 — FACTS/SPEC/模板/脚本/自动加载 skill 已就位
 - [modeler] FACTS 弹射题版 v2（五项参数调研 + 拍板锁定）— 100% — 2026-09-04 — 本 PR
-- [modeler] 【modeler 任务6】model-spec 口径对齐 + 轮④ 脚手架 — 进行中（本轮开工）— 预估 2h — ①修正 §三/§四 预演段（h_min 实测 =h0+412.17 m，旧预演 600~700 偏高且 739 m 出自 h0=8000 旧参数，防止 writer 任务3 引用过时值）；②建 `01_OUTBOX/paper/` 定稿骨架（串联 sec1–5 + 图表清单 + fill.py/audit.py 集成清单），轮④ 直接开工
+- [modeler] 【modeler 任务6】model-spec 口径对齐 + 轮④ 脚手架 — 100% — 2026-09-05 — ①model-spec §三/§四 预演口径修正（PR #19，h_min 实测 =h0+412.17 m）；②`01_OUTBOX/paper/` 建立：README.md（sec0–sec8 章节命名规范 + 轮④六步统稿流程 + 出稿自检清单）+ 论文骨架.md（拼装模板，含 AI 合规槽位与工作题名）
 
 ### coder（代码手）
 
