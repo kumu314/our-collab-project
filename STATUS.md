@@ -11,7 +11,7 @@
 | 角色 | 谁 | 认领人 |
 |------|---|--------|
 | modeler | 建模手 | kumu314（仓库管理员） |
-| coder | 代码手（兼队长） | ⬜ 待认领 |
+| coder | 代码手（兼队长） | Blair（Blair-wealthy-2007） |
 | writer | 论文手 | ningxiachufang |
 
 ## 🚀 进行中
@@ -23,7 +23,10 @@
 
 ### coder（代码手）
 
-- （暂无）
+- [coder] 【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json — 100% — 2026-09-04 — 骨架已搭好（首版数值 11122 N 为旧参数，已被下方修正版取代）
+- [coder] P1 主模型求解与结果 — 100% — 2026-09-05 — solve.py 按 model-spec + FACTS v2.1 重跑（PR #10 七条清单全项落实）：T_min=2474.92 N（≈建模手预演 2520 N），h_min=1912.17 m（开伞前最低海拔，binding=H7 垂尾），a_max_g=3.75（<5g），sep_x_min=2.59 m，vt_clear_min=1.17 m，burn_clear_min=5.98 m；fig4-1 轨迹图 + fig5-1 帕累托前沿（膝点 T*=6246.47 N）；results.json 全精度、通过 check_schema.py
+- [coder] 敏感性分析 — 100% — 2026-09-05 — v0/h0/β/m 四参数扫描入 results.json.sensitivity：v0↑/β↑/m↑→T_req↑，h0 不变（T_req 与 h0 解耦，符合 H7 早期掠过判据）
+- [coder] P2 倾角 θ 扫描与最优弹射方案 — 100% — 2026-09-05 — θ∈[0°,30°] 步长 2.5° 全部可行；**最优倾角 θ*=7.5°**（可行 θ 中推荐推力最小：T_opt=1491 N，h_min=1517.6 m）。发现低倾角端（θ≤7.5°）卡的是开伞触发约束（人椅过早弹道顶点、|v| 未降到 45 m/s，伞无法打开），θ≥10° 起转由 H7 垂尾约束卡下界；fig6-1 + table6-1 已产出
 
 ### writer（论文手）
 
@@ -32,11 +35,7 @@
 
 ## 📋 待认领（认领 = 整行搬到自己的分区）
 
-- 【coder 起步】确认 results.json schema + 搭求解骨架 + 产出首版 results.json（coder，预估 2h）— P1 有数 / P2 可 null，指令见 docs/start-coder.md
 - 【modeler 起步】填 FACTS.md 口径 + 假设清单 + 符号表（modeler，预估 1h）— ✅ 已完成：弹射版 v2 已入 main
-- P1 主模型求解与结果（coder，预估 6h）— 水平飞行：最小推力 T_min + 最低飞行高度 h_min，输出 results.json + 轨迹图
-- P2 倾角 θ 扫描与最优弹射方案（coder，预估 5h）— 输出 results.json P2 字段 + θ 扫描图
-- 敏感性分析（coder，预估 3h）— v0/h0/β/m 四参数，输出 sensitivity 字段
 - 章节 5 结果分析写作（writer，预估 4h）— sec5，依赖 results.json
 - 代码附录整理（writer，预估 2h）— 按代码附录规范
 
