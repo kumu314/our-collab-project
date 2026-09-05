@@ -28,7 +28,7 @@
 - [coder] P1 主模型求解与结果 — 100% — 2026-09-05 — solve.py 按 model-spec + FACTS v2.1 重跑（PR #10 七条清单全项落实）：T_min=2474.92 N（≈建模手预演 2520 N），h_min=1912.17 m（开伞前最低海拔，binding=H7 垂尾），a_max_g=3.75（<5g），sep_x_min=2.59 m，vt_clear_min=1.17 m，burn_clear_min=5.98 m；fig4-1 轨迹图 + fig5-1 帕累托前沿（膝点 T*=6246.47 N）；results.json 全精度、通过 check_schema.py
 - [coder] 敏感性分析 — 100% — 2026-09-05 — v0/h0/β/m 四参数扫描入 results.json.sensitivity：v0↑/β↑/m↑→T_req↑，h0 不变（T_req 与 h0 解耦，符合 H7 早期掠过判据）
 - [coder] P2 倾角 θ 扫描与最优弹射方案 — 100% — 2026-09-05 — θ∈[0°,30°] 步长 2.5° 全部可行；**最优倾角 θ*=7.5°**（可行 θ 中推荐推力最小：T_opt=1491 N，h_min=1517.6 m）。发现低倾角端（θ≤7.5°）卡的是开伞触发约束（人椅过早弹道顶点、|v| 未降到 45 m/s，伞无法打开），θ≥10° 起转由 H7 垂尾约束卡下界；fig6-1 + table6-1 已产出
-- [coder] 【coder 任务6】FACTS H1–H9 逐条核对打勾 + 复现自检 — 已指派，待认领开工 — 预估 1.5h — ①对照 solve.py 实现逐条核对 `00_CONTRACT/FACTS.md` 假设 H1–H9，把「待核对」改为 ✅ 并注明对应参数/代码位置（writer §3 要用，假设与代码不一致是硬伤）；②clean clone 重跑 solve.py，确认 results.json 关键值与已提交版本一致（验证 reproducible 声明）
+- [coder] 【coder 任务6】FACTS H1–H9 逐条核对打勾 + 复现自检 — 100% — 2026-09-05 — 核对报告 `01_OUTBOX/coder/facts_H1-H9_check.md`：**H1–H8 ✅ 一致**（逐条注明 solve.py 函数/行号）；**H9 ❌ 定义与实现不一致**——FACTS 原文 θ=飞机飞行倾角（初速 v0(cosθ,sinθ)），实际实现与 PR #18 任务4 口径均为 θ=导轨后倾角 β（飞机仍水平 v0），报告已附改写文案**请 modeler 誊入 FACTS**（00_CONTRACT 闸限制 coder 不代改）；附 §3.3 输出表建议值（P1/P2 四键均建议改 ✅）。复现自检 ✅：干净工作区重跑 solve.py，results.json 除时间戳外零差异，reproducible 声明成立
 
 ### writer（论文手）
 
